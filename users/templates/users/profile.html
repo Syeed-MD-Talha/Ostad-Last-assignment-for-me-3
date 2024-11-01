@@ -1,0 +1,99 @@
+{% extends "base.html" %}
+{% load static %}
+
+
+{% block title %}User Profile{% endblock %}
+
+{% block style %}
+  <link rel="stylesheet" href="{% static 'users/css/profile.css' %}">
+{% endblock style %}
+
+
+
+
+{% block content %}
+    <!-- Profile Container -->
+    <div class="profile-container">
+        <!-- Profile Header -->
+        <div class="profile-header">
+            <div class="profile-picture">
+                {% if user.profile.image %}
+                    <img src="{{ user.profile.image.url }}" alt="{{ user.profile.user.username }}'s profile picture">
+                {% else %}
+                    <i class="fas fa-user fa-3x" style="color: #cbd5e1;"></i>
+                {% endif %}
+                <div class="upload-overlay">
+                    <label for="profile-image-upload">
+                        <i class="fas fa-camera"></i>
+                        <input type="file" id="profile-image-upload" name="image" accept="image/*" style="display: none;">
+                    </label>
+                </div>
+            </div>
+            <div class="profile-info">
+                <h1>{{user.profile.user.username}}</h1>
+                <p>{{user.profile.user.email}}</p>
+                <div class="profile-stats">
+                    <div class="stat-item">
+                        <div class="stat-value">12</div>
+                        <div class="stat-label">Events Booked</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-value">5</div>
+                        <div class="stat-label">Events Created</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-value">3</div>
+                        <div class="stat-label">Upcoming Events</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+
+        <!-------------------- Personal Information ------------------->
+
+    <form action="" method="post" class="profile-section" enctype="multipart/form-data">
+        {% csrf_token %}
+        <div class="section-title">
+            <span>Personal Information</span>
+            <button type="submit" class="btn btn-primary">Save Changes</button>
+        </div>
+        
+        <div class="form-row">
+            <div class="form-group">
+                <label for="first-name">First Name</label>
+                <input type="text" id="first-name" name="first_name" value="{{ user.first_name }}" >
+            </div>
+            <div class="form-group">
+                <label for="last-name">Last Name</label>
+                <input type="text" id="last-name" name="last_name" value="{{user.last_name }}">
+            </div>
+        </div>
+        
+        <div class="form-group">
+            <label for="email">Email</label>
+            <input type="email" id="email" name="email" value="{{user.email}}">
+        </div>
+        
+        <div class="form-group">
+            <label for="phone">Phone</label>
+            <input type="tel" id="phone" name="phone" value="{{user.profile.phone}}">
+        </div>
+        
+        <div class="form-group">
+            <label for="location">Location</label>
+            <input type="text" id="location" name="location" value="{{user.profile.location}}">
+        </div>
+    </form>
+
+
+
+    </div>
+{% endblock content %}
+
+
+
+
+{% block script %}
+  <script src="{% static 'users/js/profile.js' %}"></script>
+{% endblock script %}

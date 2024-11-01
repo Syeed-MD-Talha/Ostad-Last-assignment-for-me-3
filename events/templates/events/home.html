@@ -1,0 +1,154 @@
+{% extends "base.html" %}
+{% load static %}
+
+
+{% block title %}User Profile{% endblock %}
+
+{% block style %}
+  <link rel="stylesheet" href="{% static 'event/css/home.css' %}">
+{% endblock style %}
+
+
+
+
+{% block content %}
+    <!-- Hero Section -->
+    <section class="hero">
+        <h1>Discover Amazing Events</h1>
+        <p>Find and book the best events happening in your city. From conferences to concerts, we've got you covered.</p>
+    </section>
+
+    <!-- Search Section -->
+    <section class="search-section">
+        <div class="search-container">
+            <input type="text" class="search-input" placeholder="Search events...">
+            <input type="date" class="search-input">
+            <input type="text" class="search-input" placeholder="Location">
+            <button class="btn btn-primary">Search</button>
+        </div>
+        <div class="categories">
+            <span class="category-tag">All</span>
+            <span class="category-tag">Conferences</span>
+            <span class="category-tag">Concerts</span>
+            <span class="category-tag">Workshops</span>
+            <span class="category-tag">Sports</span>
+        </div>
+    </section>
+
+    <!-- Events Grid -->
+    <main class="events-container">
+        <h2>Upcoming Events</h2>
+        <div class="events-grid">
+            <!-- Event Card 1 -->
+            <div class="event-card">
+                <div class="event-image">
+                    <i class="fas fa-calendar-alt fa-3x" style="color: #cbd5e1;"></i>
+                </div>
+                <div class="event-content">
+                    <h3 class="event-title">Tech Conference 2024</h3>
+                    <div class="event-details">
+                        <p><i class="fas fa-map-marker-alt"></i> San Francisco, CA</p>
+                        <p><i class="fas fa-clock"></i> Oct 25, 2024</p>
+                    </div>
+                    <div class="event-status">
+                        <span class="status-tag available">Available</span>
+                        <button class="btn btn-primary">Book Now</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Event Card 2 -->
+            <div class="event-card">
+                <div class="event-image">
+                    <i class="fas fa-music fa-3x" style="color: #cbd5e1;"></i>
+                </div>
+                <div class="event-content">
+                    <h3 class="event-title">Summer Music Festival</h3>
+                    <div class="event-details">
+                        <p><i class="fas fa-map-marker-alt"></i> Austin, TX</p>
+                        <p><i class="fas fa-clock"></i> Nov 15, 2024</p>
+                    </div>
+                    <div class="event-status">
+                        <span class="status-tag booked">Booked</span>
+                        <button class="btn btn-primary" disabled>Booked</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Event Card 3 -->
+            <div class="event-card">
+                <div class="event-image">
+                    <i class="fas fa-chalkboard-teacher fa-3x" style="color: #cbd5e1;"></i>
+                </div>
+                <div class="event-content">
+                    <h3 class="event-title">Design Workshop</h3>
+                    <div class="event-details">
+                        <p><i class="fas fa-map-marker-alt"></i> New York, NY</p>
+                        <p><i class="fas fa-clock"></i> Dec 5, 2024</p>
+                    </div>
+                    <div class="event-status">
+                        <span class="status-tag full">Fully Booked</span>
+                        <button class="btn btn-primary" disabled>Full</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+{% endblock content %}
+
+<script>
+    // JavaScript for interactive features
+    document.addEventListener('DOMContentLoaded', function() {
+        // Category selection
+        const categories = document.querySelectorAll('.category-tag');
+        categories.forEach(category => {
+            category.addEventListener('click', function() {
+                categories.forEach(c => c.style.background = '#f1f5f9');
+                category.style.background = '#818cf8';
+                category.style.color = 'white';
+            });
+        });
+
+        // Search functionality
+        const searchInput = document.querySelector('.search-input');
+        searchInput.addEventListener('input', function(e) {
+            const searchTerm = e.target.value.toLowerCase();
+            const eventCards = document.querySelectorAll('.event-card');
+            
+            eventCards.forEach(card => {
+                const title = card.querySelector('.event-title').textContent.toLowerCase();
+                const details = card.querySelector('.event-details').textContent.toLowerCase();
+                
+                if (title.includes(searchTerm) || details.includes(searchTerm)) {
+                    card.style.display = 'block';
+                } else {
+                    card.style.display = 'none';
+                }
+            });
+        });
+
+        // Login button functionality
+        const loginBtn = document.querySelector('.btn-primary');
+        loginBtn.addEventListener('click', function() {
+            // This would be connected to your backend
+            console.log('Login button clicked');
+        });
+
+        // Booking functionality
+        const bookButtons = document.querySelectorAll('.event-card .btn-primary');
+        bookButtons.forEach(button => {
+            if (!button.disabled) {
+                button.addEventListener('click', function() {
+                    // This would be connected to your backend
+                    alert('Booking functionality will be implemented with backend');
+                });
+            }
+        });
+    });
+</script>
+
+
+{% block script %}
+  <script src="{% static 'users/js/profile.js' %}"></script>
+{% endblock script %}

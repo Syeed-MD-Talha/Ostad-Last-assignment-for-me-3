@@ -1,0 +1,421 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EventHub - Event Management System</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #2563eb;
+            --secondary: #4f46e5;
+            --accent: #818cf8;
+            --background: #f8fafc;
+            --text: #1e293b;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', system-ui, sans-serif;
+        }
+
+        body {
+            background-color: var(--background);
+            color: var(--text);
+        }
+
+        /* Navigation */
+        .navbar {
+            background: white;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            padding: 1rem 2rem;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+
+        .nav-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: var(--primary);
+            text-decoration: none;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 2rem;
+            align-items: center;
+        }
+
+        .nav-links a {
+            text-decoration: none;
+            color: var(--text);
+            font-weight: 500;
+            transition: color 0.3s;
+        }
+
+        .nav-links a:hover {
+            color: var(--primary);
+        }
+
+        .btn {
+            padding: 0.5rem 1rem;
+            border-radius: 0.375rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .btn-primary {
+            background: var(--primary);
+            color: white;
+            border: none;
+        }
+
+        .btn-primary:hover {
+            background: var(--secondary);
+        }
+
+        /* Hero Section */
+        .hero {
+            background: linear-gradient(rgba(37,99,235,0.1), rgba(37,99,235,0.05));
+            padding: 4rem 2rem;
+            text-align: center;
+        }
+
+        .hero h1 {
+            font-size: 2.5rem;
+            margin-bottom: 1rem;
+            color: var(--text);
+        }
+
+        .hero p {
+            font-size: 1.125rem;
+            color: #64748b;
+            max-width: 600px;
+            margin: 0 auto 2rem;
+        }
+
+        /* Search Section */
+        .search-section {
+            max-width: 800px;
+            margin: -2rem auto 2rem;
+            padding: 1.5rem;
+            background: white;
+            border-radius: 0.5rem;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+
+        .search-container {
+            display: flex;
+            gap: 1rem;
+        }
+
+        .search-input {
+            flex: 1;
+            padding: 0.75rem;
+            border: 1px solid #e2e8f0;
+            border-radius: 0.375rem;
+            font-size: 1rem;
+        }
+
+        /* Event Categories */
+        .categories {
+            display: flex;
+            gap: 1rem;
+            margin-top: 1rem;
+            flex-wrap: wrap;
+        }
+
+        .category-tag {
+            padding: 0.5rem 1rem;
+            background: #f1f5f9;
+            border-radius: 2rem;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .category-tag:hover {
+            background: var(--accent);
+            color: white;
+        }
+
+        /* Events Grid */
+        .events-container {
+            max-width: 1200px;
+            margin: 2rem auto;
+            padding: 0 2rem;
+        }
+
+        .events-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 2rem;
+            margin-top: 2rem;
+        }
+
+        .event-card {
+            background: white;
+            border-radius: 0.5rem;
+            overflow: hidden;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            transition: transform 0.3s;
+        }
+
+        .event-card:hover {
+            transform: translateY(-4px);
+        }
+
+        .event-image {
+            width: 100%;
+            height: 200px;
+            background: #e2e8f0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .event-content {
+            padding: 1.5rem;
+        }
+
+        .event-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+        }
+
+        .event-details {
+            color: #64748b;
+            margin-bottom: 1rem;
+        }
+
+        .event-status {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .status-tag {
+            padding: 0.25rem 0.75rem;
+            border-radius: 1rem;
+            font-size: 0.875rem;
+        }
+
+        .available {
+            background: #dcfce7;
+            color: #166534;
+        }
+
+        .booked {
+            background: #dbeafe;
+            color: #1e40af;
+        }
+
+        .full {
+            background: #fee2e2;
+            color: #991b1b;
+        }
+
+        /* Footer */
+        footer {
+            background: white;
+            padding: 2rem;
+            margin-top: 4rem;
+            border-top: 1px solid #e2e8f0;
+        }
+
+        .footer-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            text-align: center;
+            color: #64748b;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .nav-links {
+                display: none;
+            }
+
+            .hero h1 {
+                font-size: 2rem;
+            }
+
+            .search-container {
+                flex-direction: column;
+            }
+
+            .events-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar">
+        <div class="nav-content">
+            <a href="#" class="logo">EventHub</a>
+            <div class="nav-links">
+                <a href="#">Home</a>
+                <a href="#">Events</a>
+                <a href="#">My Bookings</a>
+                <a href="#">Profile</a>
+                <button class="btn btn-primary">Login</button>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section class="hero">
+        <h1>Discover Amazing Events</h1>
+        <p>Find and book the best events happening in your city. From conferences to concerts, we've got you covered.</p>
+    </section>
+
+    <!-- Search Section -->
+    <section class="search-section">
+        <div class="search-container">
+            <input type="text" class="search-input" placeholder="Search events...">
+            <input type="date" class="search-input">
+            <input type="text" class="search-input" placeholder="Location">
+            <button class="btn btn-primary">Search</button>
+        </div>
+        <div class="categories">
+            <span class="category-tag">All</span>
+            <span class="category-tag">Conferences</span>
+            <span class="category-tag">Concerts</span>
+            <span class="category-tag">Workshops</span>
+            <span class="category-tag">Sports</span>
+        </div>
+    </section>
+
+    <!-- Events Grid -->
+    <main class="events-container">
+        <h2>Upcoming Events</h2>
+        <div class="events-grid">
+            <!-- Event Card 1 -->
+            <div class="event-card">
+                <div class="event-image">
+                    <i class="fas fa-calendar-alt fa-3x" style="color: #cbd5e1;"></i>
+                </div>
+                <div class="event-content">
+                    <h3 class="event-title">Tech Conference 2024</h3>
+                    <div class="event-details">
+                        <p><i class="fas fa-map-marker-alt"></i> San Francisco, CA</p>
+                        <p><i class="fas fa-clock"></i> Oct 25, 2024</p>
+                    </div>
+                    <div class="event-status">
+                        <span class="status-tag available">Available</span>
+                        <button class="btn btn-primary">Book Now</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Event Card 2 -->
+            <div class="event-card">
+                <div class="event-image">
+                    <i class="fas fa-music fa-3x" style="color: #cbd5e1;"></i>
+                </div>
+                <div class="event-content">
+                    <h3 class="event-title">Summer Music Festival</h3>
+                    <div class="event-details">
+                        <p><i class="fas fa-map-marker-alt"></i> Austin, TX</p>
+                        <p><i class="fas fa-clock"></i> Nov 15, 2024</p>
+                    </div>
+                    <div class="event-status">
+                        <span class="status-tag booked">Booked</span>
+                        <button class="btn btn-primary" disabled>Booked</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Event Card 3 -->
+            <div class="event-card">
+                <div class="event-image">
+                    <i class="fas fa-chalkboard-teacher fa-3x" style="color: #cbd5e1;"></i>
+                </div>
+                <div class="event-content">
+                    <h3 class="event-title">Design Workshop</h3>
+                    <div class="event-details">
+                        <p><i class="fas fa-map-marker-alt"></i> New York, NY</p>
+                        <p><i class="fas fa-clock"></i> Dec 5, 2024</p>
+                    </div>
+                    <div class="event-status">
+                        <span class="status-tag full">Fully Booked</span>
+                        <button class="btn btn-primary" disabled>Full</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer>
+        <div class="footer-content">
+            <p>&copy; 2024 EventHub. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <script>
+        // JavaScript for interactive features
+        document.addEventListener('DOMContentLoaded', function() {
+            // Category selection
+            const categories = document.querySelectorAll('.category-tag');
+            categories.forEach(category => {
+                category.addEventListener('click', function() {
+                    categories.forEach(c => c.style.background = '#f1f5f9');
+                    category.style.background = '#818cf8';
+                    category.style.color = 'white';
+                });
+            });
+
+            // Search functionality
+            const searchInput = document.querySelector('.search-input');
+            searchInput.addEventListener('input', function(e) {
+                const searchTerm = e.target.value.toLowerCase();
+                const eventCards = document.querySelectorAll('.event-card');
+                
+                eventCards.forEach(card => {
+                    const title = card.querySelector('.event-title').textContent.toLowerCase();
+                    const details = card.querySelector('.event-details').textContent.toLowerCase();
+                    
+                    if (title.includes(searchTerm) || details.includes(searchTerm)) {
+                        card.style.display = 'block';
+                    } else {
+                        card.style.display = 'none';
+                    }
+                });
+            });
+
+            // Login button functionality
+            const loginBtn = document.querySelector('.btn-primary');
+            loginBtn.addEventListener('click', function() {
+                // This would be connected to your backend
+                console.log('Login button clicked');
+            });
+
+            // Booking functionality
+            const bookButtons = document.querySelectorAll('.event-card .btn-primary');
+            bookButtons.forEach(button => {
+                if (!button.disabled) {
+                    button.addEventListener('click', function() {
+                        // This would be connected to your backend
+                        alert('Booking functionality will be implemented with backend');
+                    });
+                }
+            });
+        });
+    </script>
+</body>
+</html>

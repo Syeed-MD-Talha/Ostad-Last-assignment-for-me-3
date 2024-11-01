@@ -1,0 +1,29 @@
+event_management/
+    ├── manage.py
+    ├── requirements.txt
+    ├── event_management/
+    │   ├── __init__.py
+    │   ├── settings.py
+    │   ├── urls.py
+    │   └── wsgi.py
+    ├── users/
+    │   ├── models.py         # User Profile model
+    │   ├── views.py          # Login, register, profile views
+    │   ├── forms.py          # User forms
+    │   ├── urls.py
+    │   └── templates/
+    │       ├── login.html
+    │       ├── register.html
+    │       └── profile.html
+    ├── events/
+    │   ├── models.py         # Event and Booking models
+    │   ├── views.py          # Event CRUD views
+    │   ├── forms.py          # Event forms
+    │   ├── urls.py
+    │   └── templates/
+    │       ├── home.html
+    │       ├── event_management.html
+    │       ├── create_event.html
+    │       └── my_bookings.html
+    └── templates/
+        └── base.html         # Base template with navbar

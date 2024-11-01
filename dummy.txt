@@ -1,0 +1,884 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EventHub - Event Management</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #2563eb;
+            --secondary: #4f46e5;
+            --accent: #818cf8;
+            --background: #f8fafc;
+            --text: #1e293b;
+            --error: #ef4444;
+            --success: #22c55e;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', system-ui, sans-serif;
+        }
+
+        body {
+            background-color: var(--background);
+            color: var(--text);
+        }
+
+        .navbar {
+            background: white;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            padding: 1rem 2rem;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+
+        .nav-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: var(--primary);
+            text-decoration: none;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 2rem;
+            align-items: center;
+        }
+
+        .nav-links a {
+            text-decoration: none;
+            color: var(--text);
+            font-weight: 500;
+            transition: color 0.3s;
+        }
+
+        .nav-links a:hover {
+            color: var(--primary);
+        }
+
+        .main-container {
+            max-width: 1200px;
+            margin: 2rem auto;
+            padding: 0 2rem;
+        }
+
+        .page-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+        }
+
+        .btn {
+            padding: 0.5rem 1rem;
+            border-radius: 0.375rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s;
+            border: none;
+        }
+
+        .btn-primary {
+            background: var(--primary);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: var(--secondary);
+        }
+
+        .btn-danger {
+            background: var(--error);
+            color: white;
+        }
+
+        .btn-danger:hover {
+            opacity: 0.9;
+        }
+
+        /* Event Form */
+        .event-form {
+            background: white;
+            padding: 2rem;
+            border-radius: 0.5rem;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            margin-bottom: 2rem;
+            display: none;
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 500;
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 0.75rem;
+            border: 1px solid #e2e8f0;
+            border-radius: 0.375rem;
+            font-size: 1rem;
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+        }
+
+        /* Events Table */
+        .events-table {
+            width: 100%;
+            background: white;
+            border-radius: 0.5rem;
+            overflow: hidden;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .events-table th,
+        .events-table td {
+            padding: 1rem;
+            text-align: left;
+            border-bottom: 1px solid #e2e8f0;
+        }
+
+        .events-table th {
+            background: #f8fafc;
+            font-weight: 600;
+        }
+
+        .events-table tr:last-child td {
+            border-bottom: none;
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .status-badge {
+            padding: 0.25rem 0.75rem;
+            border-radius: 1rem;
+            font-size: 0.875rem;
+            display: inline-block;
+        }
+
+        .status-active {
+            background: #dcfce7;
+            color: #166534;
+        }
+
+        .status-draft {
+            background: #fee2e2;
+            color: #991b1b;
+        }
+
+        /* Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+        }
+
+        .modal-content {
+            background: white;
+            padding: 2rem;
+            border-radius: 0.5rem;
+            max-width: 500px;
+            margin: 4rem auto;
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+
+        .close {
+            cursor: pointer;
+            font-size: 1.5rem;
+        }
+
+        @media (max-width: 768px) {
+            .form-row {
+                grid-template-columns: 1fr;
+            }
+
+            .events-table {
+                display: block;
+                overflow-x: auto;
+            }
+
+            .action-buttons {
+                flex-direction: column;
+            }
+
+            .action-buttons .btn {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar">
+        <div class="nav-content">
+            <a href="#" class="logo">EventHub</a>
+            <div class="nav-links">
+                <a href="#">Home</a>
+                <a href="#">Events</a>
+                <a href="#">My Bookings</a>
+                <a href="#">Profile</a>
+                <button class="btn btn-primary">Logout</button>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="main-container">
+        <div class="page-header">
+            <h1>Event Management</h1>
+            <button class="btn btn-primary" id="createEventBtn">
+                <i class="fas fa-plus"></i> Create New Event
+            </button>
+        </div>
+
+        <!-- Event Form -->
+        <form class="event-form" id="eventForm">
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="eventName">Event Name</label>
+                    <input type="text" id="eventName" class="form-control" required>
+                </div>
+                <div class="form-group">
+                    <label for="eventCategory">Category</label>
+                    <select id="eventCategory" class="form-control" required>
+                        <option value="">Select Category</option>
+                        <option value="conference">Conference</option>
+                        <option value="concert">Concert</option>
+                        <option value="workshop">Workshop</option>
+                        <option value="sports">Sports</option>
+                    </select>
+                </div>
+            </div>
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="eventDate">Date</label>
+                    <input type="datetime-local" id="eventDate" class="form-control" required>
+                </div>
+                <div class="form-group">
+                    <label for="eventLocation">Location</label>
+                    <input type="text" id="eventLocation" class="form-control" required>
+                </div>
+            </div>
+            <div class="form-group">
+                <label for="eventDescription">Description</label>
+                <textarea id="eventDescription" class="form-control" rows="4" required></textarea>
+            </div>
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="maxAttendees">Maximum Attendees</label>
+                    <input type="number" id="maxAttendees" class="form-control" min="1" required>
+                </div>
+                <div class="form-group">
+                    <label for="eventStatus">Status</label>
+                    <select id="eventStatus" class="form-control" required>
+                        <option value="active">Active</option>
+                        <option value="draft">Draft</option>
+                    </select>
+                </div>
+            </div>
+            <div class="form-group">
+                <button type="submit" class="btn btn-primary">Save Event</button>
+                <button type="button" class="btn btn-danger" onclick="hideEventForm()">Cancel</button>
+            </div>
+        </form>
+
+        <!-- Events Table -->
+        <table class="events-table">
+            <thead>
+                <tr>
+                    <th>Event Name</th>
+                    <th>Date</th>
+                    <th>Location</th>
+                    <th>Category</th>
+                    <th>Status</th>
+                    <th>Bookings</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>Tech Conference 2024</td>
+                    <td>Oct 25, 2024</td>
+                    <td>San Francisco, CA</td>
+                    <td>Conference</td>
+                    <td><span class="status-badge status-active">Active</span></td>
+                    <td>45/100</td>
+                    <td>
+                        <div class="action-buttons">
+                            <button class="btn btn-primary" onclick="editEvent(1)">
+                                <i class="fas fa-edit"></i> Edit
+                            </button>
+                            <button class="btn btn-danger" onclick="deleteEvent(1)">
+                                <i class="fas fa-trash"></i> Delete
+                            </button>
+                        </div>
+                    </td>
+                </tr>
+                <tr>
+                    <td>Summer Music Festival</td>
+                    <td>Nov 15, 2024</td>
+                    <td>Austin, TX</td>
+                    <td>Concert</td>
+                    <td><span class="status-badge status-draft">Draft</span></td>
+                    <td>0/500</td>
+                    <td>
+                        <div class="action-buttons">
+                            <button class="btn btn-primary" onclick="editEvent(2)">
+                                <i class="fas fa-edit"></i> Edit
+                            </button>
+                            <button class="btn btn-danger" onclick="deleteEvent(2)">
+                                <i class="fas fa-trash"></i> Delete
+                            </button>
+                        </div>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+
+        <!-- Delete Confirmation Modal -->
+        <div class="modal" id="deleteModal">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h2>Confirm Delete</h2>
+                    <span class="close">&times;</span>
+                </div>
+                <p>Are you sure you want to delete this event? This action cannot be undone.</p>
+                <div style="margin-top: 1rem;">
+                    <button class="btn btn-danger" onclick="confirmDelete()">Delete</button>
+                    <button class="btn btn-primary" onclick="closeDeleteModal()">Cancel</button>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        // Show/Hide Event Form
+        const createEventBtn = document.getElementById('createEventBtn');
+        const eventForm = document.getElementById('eventForm');
+        const deleteModal = document.getElementById('deleteModal');
+        let currentDeleteId = null;
+
+        createEventBtn.addEventListener('click', () => {
+            eventForm.style.display = 'block';
+            eventForm.reset();
+            window.scrollTo({ top: eventForm.offsetTop - 100, behavior: 'smooth' });
+        });
+
+        function hideEventForm() {
+            eventForm.style.display = 'none';
+        }
+
+        // Form Submission
+        eventForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            // Here you would typically send the data to your backend
+            const formData = {
+                name: document.getElementById('eventName').value,
+                category: document.getElementById('eventCategory').value,
+                date: document.getElementById('eventDate').value,
+                location: document.getElementById('eventLocation').value,
+                description: document.getElementById('eventDescription').value,
+                maxAttendees: document.getElementById('maxAttendees').value,
+                status: document.getElementById('eventStatus').value
+            };
+            console.log('Form submitted:', formData);
+            hideEventForm();
+        });
+
+        // Edit Event
+        function editEvent(id) {
+            // Here you would typically fetch the event data from your backend
+            eventForm.style.display = 'block';
+            window.scrollTo({ top: eventForm.offsetTop - 100, behavior: 'smooth' });
+        }
+
+        // Delete Event
+        function deleteEvent(id) {
+            currentDeleteId = id;
+            deleteModal.style.display = 'block';
+        }
+
+        function confirmDelete() {
+            // Here you would typically send the delete request to your backend
+            console.log('Deleting event:', currentDeleteId);
+            closeDeleteModal();
+        }
+
+        function closeDeleteModal() {
+            deleteModal.style.display = 'none';
+            currentDeleteId = null;
+        }
+
+        // Close modal when clicking outside
+        window.onclick = function(event) {
+            if (event.target == deleteModal) {
+                closeDeleteModal();
+            }
+        }
+
+        // Close modal when clicking X
+        document.querySelector('.close').onclick = closeDeleteModal;
+    </script>
+</body>
+</html>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EventHub - Event Management</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #2563eb;
+            --secondary: #4f46e5;
+            --accent: #818cf8;
+            --background: #f8fafc;
+            --text: #1e293b;
+            --error: #ef4444;
+            --success: #22c55e;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', system-ui, sans-serif;
+        }
+
+        body {
+            background-color: var(--background);
+            color: var(--text);
+        }
+
+        .navbar {
+            background: white;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            padding: 1rem 2rem;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+
+        .nav-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: var(--primary);
+            text-decoration: none;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 2rem;
+            align-items: center;
+        }
+
+        .nav-links a {
+            text-decoration: none;
+            color: var(--text);
+            font-weight: 500;
+            transition: color 0.3s;
+        }
+
+        .nav-links a:hover {
+            color: var(--primary);
+        }
+
+        .main-container {
+            max-width: 1200px;
+            margin: 2rem auto;
+            padding: 0 2rem;
+        }
+
+        .page-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+        }
+
+        .btn {
+            padding: 0.5rem 1rem;
+            border-radius: 0.375rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s;
+            border: none;
+        }
+
+        .btn-primary {
+            background: var(--primary);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: var(--secondary);
+        }
+
+        .btn-danger {
+            background: var(--error);
+            color: white;
+        }
+
+        .btn-danger:hover {
+            opacity: 0.9;
+        }
+
+        /* Event Form */
+        .event-form {
+            background: white;
+            padding: 2rem;
+            border-radius: 0.5rem;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            margin-bottom: 2rem;
+            display: none;
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 500;
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 0.75rem;
+            border: 1px solid #e2e8f0;
+            border-radius: 0.375rem;
+            font-size: 1rem;
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+        }
+
+        /* Events Table */
+        .events-table {
+            width: 100%;
+            background: white;
+            border-radius: 0.5rem;
+            overflow: hidden;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .events-table th,
+        .events-table td {
+            padding: 1rem;
+            text-align: left;
+            border-bottom: 1px solid #e2e8f0;
+        }
+
+        .events-table th {
+            background: #f8fafc;
+            font-weight: 600;
+        }
+
+        .events-table tr:last-child td {
+            border-bottom: none;
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .status-badge {
+            padding: 0.25rem 0.75rem;
+            border-radius: 1rem;
+            font-size: 0.875rem;
+            display: inline-block;
+        }
+
+        .status-active {
+            background: #dcfce7;
+            color: #166534;
+        }
+
+        .status-draft {
+            background: #fee2e2;
+            color: #991b1b;
+        }
+
+        /* Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+        }
+
+        .modal-content {
+            background: white;
+            padding: 2rem;
+            border-radius: 0.5rem;
+            max-width: 500px;
+            margin: 4rem auto;
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+
+        .close {
+            cursor: pointer;
+            font-size: 1.5rem;
+        }
+
+        @media (max-width: 768px) {
+            .form-row {
+                grid-template-columns: 1fr;
+            }
+
+            .events-table {
+                display: block;
+                overflow-x: auto;
+            }
+
+            .action-buttons {
+                flex-direction: column;
+            }
+
+            .action-buttons .btn {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar">
+        <div class="nav-content">
+            <a href="#" class="logo">EventHub</a>
+            <div class="nav-links">
+                <a href="#">Home</a>
+                <a href="#">Events</a>
+                <a href="#">My Bookings</a>
+                <a href="#">Profile</a>
+                <button class="btn btn-primary">Logout</button>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="main-container">
+        <div class="page-header">
+            <h1>Event Management</h1>
+            <button class="btn btn-primary" id="createEventBtn">
+                <i class="fas fa-plus"></i> Create New Event
+            </button>
+        </div>
+
+        <!-- Events Table -->
+        <table class="events-table">
+            <thead>
+                <tr>
+                    <th>Event Name</th>
+                    <th>Date</th>
+                    <th>Location</th>
+                    <th>Category</th>
+                    <th>Status</th>
+                    <th>Bookings</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for event in events %}
+                <tr>
+                    <td>{{event.name}}</td>
+                    <td>{{event.date}}</td>
+                    <td>{{event.location}}</td>
+                    <td>{{event.category}}</td>
+                    <td><span class="status-badge status-active">{{event.status}}</span></td>
+                    <td>{{event.max_attendees}}</td>
+                    <td>
+                        <div class="action-buttons">
+                            <a style="text-decoration: none;" href="{% url 'update_event' event.id %}" class="btn btn-primary">
+                                <i class="fas fa-edit"></i> Edit
+                            </a>
+                            <button class="btn btn-danger" onclick="deleteEvent(1)">
+                                <i class="fas fa-trash"></i> Delete
+                            </button>
+                        </div>
+
+                        <!-- Delete Confirmation Modal -->
+                        <div class="modal" id="deleteModal">
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                    <h2>Confirm Delete</h2>
+                                </div>
+                                <p>Are you sure you want to delete this event? This action cannot be undone.</p>
+                                <div style="margin-top: 1rem; display:flex;">
+                                    <form action="{% url 'delete_event' event.id %}" method="post">
+                                        {% csrf_token %}
+                                        <button class="btn btn-danger">
+                                            <i class="fas fa-trash"></i> Delete
+                                        </button>
+                                    </form>
+                                    <button style="margin-left:1rem" class="btn btn-primary" onclick="closeDeleteModal()">Cancel</button>
+                                </div>
+                            </div>
+                        </div>
+                    </td>
+                </tr>
+
+
+
+                {% endfor %}
+
+
+            </tbody>
+        </table>
+
+
+
+
+
+    </main>
+
+    <script>
+        // Show/Hide Event Form
+        const createEventBtn = document.getElementById('createEventBtn');
+        const eventForm = document.getElementById('eventForm');
+        const deleteModal = document.getElementById('deleteModal');
+        let currentDeleteId = null;
+
+        createEventBtn.addEventListener('click', () => {
+            eventForm.style.display = 'block';
+            eventForm.reset();
+            window.scrollTo({ top: eventForm.offsetTop - 100, behavior: 'smooth' });
+        });
+
+        function hideEventForm() {
+            eventForm.style.display = 'none';
+        }
+
+        // Form Submission
+        eventForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            // Here you would typically send the data to your backend
+            const formData = {
+                name: document.getElementById('eventName').value,
+                category: document.getElementById('eventCategory').value,
+                date: document.getElementById('eventDate').value,
+                location: document.getElementById('eventLocation').value,
+                description: document.getElementById('eventDescription').value,
+                maxAttendees: document.getElementById('maxAttendees').value,
+                status: document.getElementById('eventStatus').value
+            };
+            console.log('Form submitted:', formData);
+            hideEventForm();
+        });
+
+        // Edit Event
+        function editEvent(id) {
+            // Here you would typically fetch the event data from your backend
+            eventForm.style.display = 'block';
+            window.scrollTo({ top: eventForm.offsetTop - 100, behavior: 'smooth' });
+        }
+
+        // Delete Event
+        function deleteEvent(id) {
+            currentDeleteId = id;
+            deleteModal.style.display = 'block';
+        }
+
+        function confirmDelete() {
+            // Here you would typically send the delete request to your backend
+            console.log('Deleting event:', currentDeleteId);
+            closeDeleteModal();
+        }
+
+        function closeDeleteModal() {
+            deleteModal.style.display = 'none';
+            currentDeleteId = null;
+        }
+
+        // Close modal when clicking outside
+        window.onclick = function(event) {
+            if (event.target == deleteModal) {
+                closeDeleteModal();
+            }
+        }
+
+        // Close modal when clicking X
+        document.querySelector('.close').onclick = closeDeleteModal;
+    </script>
+</body>
+</html>
